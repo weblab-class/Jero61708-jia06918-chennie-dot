@@ -1,9 +1,12 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema({
-  name: String,
-  googleid: String,
-});
+const UserSchema = new mongoose.Schema(
+  {
+    email: { type: String, unique: true, required: true, lowercase: true, trim: true },
+    name: { type: String, required: true, trim: true },
+    passwordHash: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-// compile model from schema
-module.exports = mongoose.model("user", UserSchema);
+export default mongoose.model("User", UserSchema);

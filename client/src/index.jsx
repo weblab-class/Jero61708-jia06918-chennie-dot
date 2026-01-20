@@ -2,12 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-import App from "./App.jsx"; // <-- IMPORTANT: App.jsx must be in client/src/
-import "./utilities.css";    // remove if this file doesn't exist
+import App from "./App.jsx";
+import "./utilities.css";
 
-// TODO: REPLACE WITH YOUR OWN CLIENT_ID
-const GOOGLE_CLIENT_ID =
-  "370765859994-aashu73svujhs16dso48s50pluusq3kl.apps.googleusercontent.com";
+// ✅ paste the SAME client id as in .env
+const GOOGLE_CLIENT_ID = "370765859994-aashu73svujhs16dso48s50pluusq3kl.apps.googleusercontent.com";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
