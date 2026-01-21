@@ -19,7 +19,7 @@ const auth = require("./auth");
 const router = express.Router();
 
 //initialize socket
-const socketManager = require("./server-socket");
+const socketManager = require("./server-socket.cjs");
 
 router.post("/login", auth.login);
 router.post("/logout", auth.logout);
