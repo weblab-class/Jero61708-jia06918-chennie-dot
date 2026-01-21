@@ -13,16 +13,16 @@ const express = require("express");
 const User = require("./models/user");
 
 // import authentication library
-const auth = require("./auth");
+// const auth = require("./auth");
 
 // api endpoints: all these paths will be prefixed with "/api/"
 const router = express.Router();
 
 //initialize socket
-const socketManager = require("./server-socket");
+const socketManager = require("./server-socket.cjs");
 
-router.post("/login", auth.login);
-router.post("/logout", auth.logout);
+//router.post("/login", auth.login);
+// router.post("/logout", auth.logout);
 router.get("/whoami", (req, res) => {
   if (!req.user) {
     // not logged in

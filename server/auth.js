@@ -1,12 +1,19 @@
 import express from "express";
 import { OAuth2Client } from "google-auth-library";
 
-const router = express.Router();
-
+const authRouter = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+/**
+ * Middleware: sets req.user from session (or null)
+ */
+function populateCurrentUser(req, res, next) {
+  req.user = req.session?.user || null;
+  next();
+}
+
 // POST /api/login
-router.post("/login", async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { credential } = req.body || {};
     if (!credential) return res.status(400).json({ error: "Missing credential" });
@@ -31,16 +38,13 @@ router.post("/login", async (req, res) => {
 });
 
 // GET /api/whoami
-router.get("/whoami", (req, res) => {
-  res.json(req.session.user || null);
+authRouter.get("/whoami", (req, res) => {
+  res.json(req.session?.user || null);
 });
 
 // POST /api/logout
-router.post("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({ ok: true });
-  });
+authRouter.post("/logout", (req, res) => {
+  req.session.destroy(() => res.json({ ok: true }));
 });
 
-export default router;
-module.exports = { populateCurrentUser, authRouter };
+export { populateCurrentUser, authRouter };
