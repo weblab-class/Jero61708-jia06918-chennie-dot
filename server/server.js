@@ -64,9 +64,9 @@ app.use(express.json());
 // allow cookies across localhost ports (vite client <-> express server)
 app.use(
   cors({
-    origin: "http://localhost:5173", // change if your Vite port differs
-    credentials: true,
-  })
+  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  credentials: true,
+})
 );
 
 // set up a session, which will persist login data across requests
@@ -129,8 +129,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// hardcode port to 3000 for now
-const port = 3000;
+const port = process.env.PORT || 3000;
 const server = http.Server(app);
 socketManager.init(server);
 
