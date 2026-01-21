@@ -15,9 +15,9 @@ import { populateCurrentUser, authRouter } from "./auth.js";
 
 // --- Support requiring existing CommonJS files (validator/api/socket) ---
 const require = createRequire(import.meta.url);
-const validator = require("./validator");
-const api = require("./api");
-const socketManager = require("./server-socket");
+const validator = require("./validator.cjs");
+const api = require("./api.cjs");
+const socketManager = require("./server-socket.cjs");
 
 // validator runs some basic checks to make sure you've set everything up correctly
 validator.checkSetup();
