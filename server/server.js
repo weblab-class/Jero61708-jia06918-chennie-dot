@@ -1,44 +1,29 @@
-/*
-|--------------------------------------------------------------------------
-| server.js -- The core of your server
-|--------------------------------------------------------------------------
-|
-| This file defines how your server starts up. Think of it as the main() of your server.
-| At a high level, this file does the following things:
-| - Connect to the database
-| - Sets up server middleware (i.e. addons that enable things like json parsing, user login)
-| - Hooks up all the backend routes specified in api.js
-| - Fowards frontend routes that should be handled by the React router
-| - Sets up error handling in case something goes wrong when handling a request
-| - Actually starts the webserver
-*/
+import dotenv from "dotenv";
+dotenv.config();
 
-// validator runs some basic checks to make sure you've set everything up correctly
-// this is a tool provided by staff, so you don't need to worry about it
+import http from "http";
+import express from "express";
+import session from "express-session";
+import mongoose from "mongoose";
+import path from "path";
+import cors from "cors";
+
+import { fileURLToPath } from "url";
+import { createRequire } from "module";
+
+import { populateCurrentUser, authRouter } from "./auth.js";
+
+// --- Support requiring existing CommonJS files (validator/api/socket) ---
+const require = createRequire(import.meta.url);
 const validator = require("./validator");
-validator.checkSetup();
-
-// allow us to use process.env
-require("dotenv").config();
-
-// import libraries needed for the webserver to work!
-const http = require("http");
-const express = require("express");
-const session = require("express-session");
-const mongoose = require("mongoose");
-const path = require("path");
-const cors = require("cors");
-
 const api = require("./api");
-const auth = require("./auth"); // must export populateCurrentUser AND authRouter (see note below)
-
-// socket stuff
 const socketManager = require("./server-socket");
 
+// validator runs some basic checks to make sure you've set everything up correctly
+validator.checkSetup();
+
 // Server configuration below
-// TODO change connection URL after setting up your team database
 const mongoConnectionURL = process.env.MONGO_SRV;
-// TODO change database name to the name you chose
 const databaseName = "main";
 
 // mongoose 7 warning
@@ -61,10 +46,11 @@ app.use(validator.checkRoutes);
 // allow us to process POST requests
 app.use(express.json());
 
-// allow cookies across localhost ports (vite client <-> express server)
+// CORS (use env in prod; fallback to vite dev)
+const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 app.use(
   cors({
-    origin: "http://localhost:5173", // change if your Vite port differs
+    origin: allowedOrigin,
     credentials: true,
   })
 );
@@ -78,31 +64,26 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: "lax",
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
     },
   })
 );
 
 // this checks if the user is logged in, and populates "req.user"
-app.use(auth.populateCurrentUser);
+app.use(populateCurrentUser);
 
-/**
- * ✅ Google login endpoints
- * Exposes:
- *   POST /api/login
- *   GET  /api/whoami
- *   POST /api/logout
- */
-app.use("/api", auth.authRouter);
+// Google login endpoints: /api/login, /api/whoami, /api/logout
+app.use("/api", authRouter);
 
 // connect user-defined routes
 app.use("/api", api);
 
-// load the compiled react files, which will serve /index.html and /bundle.js
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const reactPath = path.resolve(__dirname, "..", "client", "dist");
 app.use(express.static(reactPath));
 
-// for all other routes, render index.html and let react router handle it
 app.get("*", (req, res) => {
   res.sendFile(path.join(reactPath, "index.html"), (err) => {
     if (err) {
@@ -122,15 +103,14 @@ app.use((err, req, res, next) => {
     console.log(err);
   }
 
-  res.status(status);
-  res.send({
-    status: status,
+  res.status(status).send({
+    status,
     message: err.message,
   });
 });
 
-// hardcode port to 3000 for now
-const port = 3000;
+// Render provides PORT. Use 3000 locally.
+const port = process.env.PORT || 3000;
 const server = http.Server(app);
 socketManager.init(server);
 
