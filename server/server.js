@@ -1,3 +1,5 @@
+//import libraries needed for the webserver to work!
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -13,13 +15,14 @@ import { createRequire } from "module";
 
 import { populateCurrentUser, authRouter } from "./auth.js";
 
-// --- Support requiring existing CommonJS files (validator/api/socket) ---
 const require = createRequire(import.meta.url);
 const validator = require("./validator.cjs");
 const api = require("./api.cjs");
+
+// socket stuff
 const socketManager = require("./server-socket.cjs");
 
-// validator runs some basic checks to make sure you've set everything up correctly
+// basic checks
 validator.checkSetup();
 
 // Server configuration below
@@ -46,7 +49,7 @@ app.use(validator.checkRoutes);
 // allow us to process POST requests
 app.use(express.json());
 
-// CORS (use env in prod; fallback to vite dev)
+// CORS
 const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 app.use(
   cors({
@@ -81,9 +84,11 @@ app.use("/api", api);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// load the compiled react files, which will serve /index.html and /bundle.js
 const reactPath = path.resolve(__dirname, "..", "client", "dist");
 app.use(express.static(reactPath));
 
+// for all other routes, render index.html and let react router handle it
 app.get("*", (req, res) => {
   res.sendFile(path.join(reactPath, "index.html"), (err) => {
     if (err) {
@@ -99,6 +104,7 @@ app.get("*", (req, res) => {
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   if (status === 500) {
+    // 500 means Internal Server Error
     console.log("The server errored when processing a request!");
     console.log(err);
   }
@@ -109,7 +115,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Render provides PORT. Use 3000 locally.
+// Render provides PORT, use 3000 locally.
 const port = process.env.PORT || 3000;
 const server = http.Server(app);
 socketManager.init(server);

@@ -28,7 +28,7 @@ export default function Home() {
         Click tiles to infer the hidden rule. Green = correct, Red = incorrect.
       </p>
 
-      {/* ✅ GOOGLE LOGIN BLOCK */}
+      {/* google login block */}
       <div style={{ marginTop: 16, marginBottom: 18 }}>
         {user === undefined ? (
           <div style={{ color: "#666" }}>Loading login…</div>
@@ -67,7 +67,7 @@ export default function Home() {
           />
         )}
       </div>
-      {/* ✅ END LOGIN BLOCK */}
+      {/* end of login block */}
 
       <h3>Select Difficulty</h3>
       <div style={{ display: "flex", gap: 10 }}>

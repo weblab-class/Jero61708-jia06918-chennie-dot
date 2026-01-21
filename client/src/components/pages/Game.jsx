@@ -24,7 +24,7 @@ export default function Game() {
   const difficulty = params.get("difficulty") || "easy";
   const cfg = useMemo(() => configForDifficulty(difficulty), [difficulty]);
 
-  // Pick a random rule each game
+  // Pick a random rule for each game
   const rule = useMemo(() => RULES[Math.floor(Math.random() * RULES.length)], []);
 
   const [movesLeft, setMovesLeft] = useState(cfg.moves);
@@ -114,7 +114,7 @@ export default function Game() {
     const newScore = score + delta;
     setScore(newScore);
 
-    // check win: found all correct tiles
+    // check for a win
     const willFoundCorrect = foundCorrect + (isCorrect ? 1 : 0);
     if (willFoundCorrect >= totalCorrect) {
       endGame("won", newScore);
@@ -151,12 +151,12 @@ export default function Game() {
         </div>
       </div>
 
-      {/* For now, show the rule hint while developing. Later we can hide it until after a win. */}
+      {/* rule hint for developing
       <div style={{ marginTop: 14, padding: 12, border: "1px solid #eee", borderRadius: 12 }}>
         <div style={{ color: "#666", fontSize: 14 }}>
           Debug Hint: <b>{rule.description}</b>
         </div>
-      </div>
+      </div> */}
 
       <div
         style={{
