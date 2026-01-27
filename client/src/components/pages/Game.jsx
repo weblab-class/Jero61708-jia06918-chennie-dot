@@ -55,12 +55,14 @@ export default function Game() {
   const [score, setScore] = useState(0);
   const [mistakesLeft, setMistakesLeft] = useState(cfg.mistakes);
   const [tiles, setTiles] = useState(() => makeUnknownGrid(cfg.size));
+  const [status, setStatus] = useState("playing"); // playing | won
 
-  // Reset when difficulty changes
+  // Reset on difficulty change
   useEffect(() => {
     setScore(0);
     setMistakesLeft(cfg.mistakes);
     setTiles(makeUnknownGrid(cfg.size));
+    setStatus("playing");
   }, [cfg]);
 
   const totalCorrect = useMemo(() => {
@@ -101,6 +103,7 @@ export default function Game() {
   }
 
   function handleClick(r, c) {
+    if (status !== "playing") return;
     if (tiles[r][c] !== "unknown") return;
 
     const isCorrect = !!rule.fn(r, c, cfg.size);
@@ -129,6 +132,7 @@ export default function Game() {
     if (willFoundCorrect >= totalCorrect) {
       unlockRule(rule.id);
       updateBestScore(newScore);
+      setStatus("won");
     }
   }
 
@@ -136,6 +140,7 @@ export default function Game() {
     setScore(0);
     setMistakesLeft(cfg.mistakes);
     setTiles(makeUnknownGrid(cfg.size));
+    setStatus("playing");
   }
 
   return (
@@ -164,7 +169,7 @@ export default function Game() {
           </div>
         </div>
 
-        {/* Board card */}
+        {/* Board */}
         <div className="gameBoardCard">
           <div
             className="gameGrid"
@@ -184,7 +189,7 @@ export default function Game() {
                     key={`${r}-${c}`}
                     onClick={() => handleClick(r, c)}
                     className={cls}
-                    disabled={cell !== "unknown"}
+                    disabled={cell !== "unknown" || status !== "playing"}
                     aria-label={`tile-${r}-${c}`}
                   />
                 );
@@ -201,6 +206,25 @@ export default function Game() {
             </div>
           </div>
         </div>
+
+        {/* Win screen ONLY */}
+        {status === "won" && (
+          <div className="gameEndCard">
+            <h3 className="gameEndTitle">You cracked the rule 🎉</h3>
+            <p className="gameEndText">
+              Rule unlocked: <b>{rule.name}</b>
+            </p>
+
+            <div className="gameEndActions">
+              <button className="gameBtn" onClick={() => nav("/rules")}>
+                Rules Book
+              </button>
+              <button className="gameBtn gameBtnPrimary" onClick={() => nav("/")}>
+                Home
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
