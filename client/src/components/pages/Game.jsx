@@ -1,6 +1,8 @@
+// client/src/components/pages/Game.jsx
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RULES } from "../modules/rules";
+import "./Game.css";
 
 function configForDifficulty(d) {
   if (d === "hard") return { size: 7, moves: 10, correctPoints: 3, wrongPoints: -2 };
@@ -17,6 +19,10 @@ function saveJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function makeUnknownGrid(size) {
+  return Array.from({ length: size }, () => Array.from({ length: size }, () => "unknown"));
+}
+
 export default function Game() {
   const [params] = useSearchParams();
   const nav = useNavigate();
@@ -24,17 +30,20 @@ export default function Game() {
   const difficulty = params.get("difficulty") || "easy";
   const cfg = useMemo(() => configForDifficulty(difficulty), [difficulty]);
 
-  // Pick a random rule for each game
+  // pick a rule once per mount
   const rule = useMemo(() => RULES[Math.floor(Math.random() * RULES.length)], []);
 
   const [movesLeft, setMovesLeft] = useState(cfg.moves);
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState("playing"); // playing | won | lost
-  const [tiles, setTiles] = useState(() =>
-    Array.from({ length: cfg.size }, () =>
-      Array.from({ length: cfg.size }, () => "unknown")
-    )
-  );
+  const [tiles, setTiles] = useState(() => makeUnknownGrid(cfg.size));
+
+  useEffect(() => {
+    setMovesLeft(cfg.moves);
+    setScore(0);
+    setStatus("playing");
+    setTiles(makeUnknownGrid(cfg.size));
+  }, [cfg.moves, cfg.size]);
 
   const totalCorrect = useMemo(() => {
     let count = 0;
@@ -76,21 +85,14 @@ export default function Game() {
   function endGame(nextStatus, finalScore) {
     setStatus(nextStatus);
     updateBestScore(finalScore);
-
-    if (nextStatus === "won") {
-      unlockRule(rule.id);
-    }
+    if (nextStatus === "won") unlockRule(rule.id);
   }
 
   function reset() {
     setMovesLeft(cfg.moves);
     setScore(0);
     setStatus("playing");
-    setTiles(
-      Array.from({ length: cfg.size }, () =>
-        Array.from({ length: cfg.size }, () => "unknown")
-      )
-    );
+    setTiles(makeUnknownGrid(cfg.size));
   }
 
   function handleClick(r, c) {
@@ -100,7 +102,6 @@ export default function Game() {
 
     const isCorrect = !!rule.fn(r, c, cfg.size);
 
-    // update tiles
     setTiles((prev) => {
       const copy = prev.map((row) => row.slice());
       copy[r][c] = isCorrect ? "correct" : "wrong";
@@ -114,103 +115,102 @@ export default function Game() {
     const newScore = score + delta;
     setScore(newScore);
 
-    // check for a win
     const willFoundCorrect = foundCorrect + (isCorrect ? 1 : 0);
     if (willFoundCorrect >= totalCorrect) {
       endGame("won", newScore);
       return;
     }
-
-    if (newMoves <= 0) {
-      endGame("lost", newScore);
-    }
+    if (newMoves <= 0) endGame("lost", newScore);
   }
 
-  const tilePx = cfg.size <= 5 ? 70 : 58;
-
   return (
-    <div style={{ padding: 24, maxWidth: 1000, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-        <div>
-          <h2 style={{ margin: 0 }}>Game</h2>
-          <div style={{ marginTop: 6, color: "#444" }}>
-            Difficulty: <b>{difficulty}</b> • Moves Left: <b>{movesLeft}</b> • Score: <b>{score}</b>
+    <div className="game">
+      <main className="gameMain">
+        {/* Top bar */}
+        <div className="gameTopBar">
+          <div className="gameStats">
+            <div className="statPill">
+              <div className="statLabel">Score</div>
+              <div className="statValue">{score}</div>
+            </div>
+            <div className="statPill">
+              <div className="statLabel">Moves Left</div>
+              <div className="statValue">{movesLeft}</div>
+            </div>
+          </div>
+
+          <div className="gameActions">
+            <button className="gameBtn" onClick={() => nav("/")}>
+              Home
+            </button>
+            <button className="gameBtn gameBtnPrimary" onClick={reset}>
+              Restart
+            </button>
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={reset} style={{ padding: "10px 14px", borderRadius: 10 }}>
-            Restart
-          </button>
-          <button onClick={() => nav("/rules")} style={{ padding: "10px 14px", borderRadius: 10 }}>
-            Rules Book
-          </button>
-          <button onClick={() => nav("/")} style={{ padding: "10px 14px", borderRadius: 10 }}>
-            Home
-          </button>
+        {/* Board card */}
+        <div className="gameBoardCard">
+          <div
+            className="gameGrid"
+            style={{ gridTemplateColumns: `repeat(${cfg.size}, var(--tile))` }}
+          >
+            {tiles.map((row, r) =>
+              row.map((cell, c) => {
+                const cls =
+                  cell === "unknown"
+                    ? "gameTile"
+                    : cell === "correct"
+                    ? "gameTile gameTile--correct"
+                    : "gameTile gameTile--wrong";
+
+                return (
+                  <button
+                    key={`${r}-${c}`}
+                    onClick={() => handleClick(r, c)}
+                    className={cls}
+                    disabled={status !== "playing" || cell !== "unknown" || movesLeft <= 0}
+                    aria-label={`tile-${r}-${c}`}
+                  />
+                );
+              })
+            )}
+          </div>
+
+          <div className="gameLegend">
+            <div className="gameLegendGreen">Green: +{cfg.correctPoints}</div>
+            <div className="gameLegendRed">Red: {cfg.wrongPoints}</div>
+          </div>
         </div>
-      </div>
 
-      {/* rule hint for developing
-      <div style={{ marginTop: 14, padding: 12, border: "1px solid #eee", borderRadius: 12 }}>
-        <div style={{ color: "#666", fontSize: 14 }}>
-          Debug Hint: <b>{rule.description}</b>
-        </div>
-      </div> */}
+        {/* End-of-game */}
+        {status !== "playing" && (
+          <div className="gameEndCard">
+            {status === "won" ? (
+              <>
+                <h3 className="gameEndTitle">You won 🎉</h3>
+                <p className="gameEndText">
+                  Rule unlocked: <b>{rule.name}</b>
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="gameEndTitle">Out of moves</h3>
+                <p className="gameEndText">Try restarting or changing difficulty.</p>
+              </>
+            )}
 
-      <div
-        style={{
-          marginTop: 18,
-          display: "grid",
-          gridTemplateColumns: `repeat(${cfg.size}, ${tilePx}px)`,
-          gap: 10,
-        }}
-      >
-        {tiles.map((row, r) =>
-          row.map((cell, c) => {
-            const bg =
-              cell === "unknown" ? "#e5e7eb" : cell === "correct" ? "#16a34a" : "#dc2626";
-            const color = cell === "unknown" ? "#111" : "white";
-
-            return (
-              <button
-                key={`${r}-${c}`}
-                onClick={() => handleClick(r, c)}
-                style={{
-                  width: tilePx,
-                  height: tilePx,
-                  borderRadius: 12,
-                  border: "1px solid #ddd",
-                  background: bg,
-                  color,
-                  fontWeight: 800,
-                  cursor: status === "playing" && cell === "unknown" ? "pointer" : "default",
-                }}
-              >
-                {r},{c}
+            <div className="gameEndActions">
+              <button className="gameBtn" onClick={() => nav("/rules")}>
+                Rules Book
               </button>
-            );
-          })
+              <button className="gameBtn gameBtnPrimary" onClick={() => nav("/")}>
+                Home
+              </button>
+            </div>
+          </div>
         )}
-      </div>
-
-      {status !== "playing" && (
-        <div style={{ marginTop: 18, padding: 14, borderRadius: 12, border: "1px solid #ddd" }}>
-          {status === "won" ? (
-            <>
-              <h3 style={{ marginTop: 0 }}>You won 🎉</h3>
-              <p style={{ marginBottom: 0 }}>
-                Rule unlocked: <b>{rule.name}</b>
-              </p>
-            </>
-          ) : (
-            <>
-              <h3 style={{ marginTop: 0 }}>Out of moves</h3>
-              <p style={{ marginBottom: 0 }}>Try restarting or changing difficulty.</p>
-            </>
-          )}
-        </div>
-      )}
+      </main>
     </div>
   );
 }

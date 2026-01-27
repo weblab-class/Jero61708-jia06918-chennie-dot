@@ -4,39 +4,71 @@
 * and can be used to add general styles; variable definitions
 * for colors; and styles to html, body, and other high level
 * DOMs.
-* 
+*
 * All utility classes start with a `u-` and all do
 * one basic CSS thing (for example, making the font-weight
 * 600 for bolding) or are super generic.
-* 
+*
 * This is 𝙉𝙊𝙏 the place to define classes for components or
 * do rigorous styling. You shoud not need to change this file
 * much after initial creation.
 */
 
 /* TODO: REPLACE WITH YOUR OWN FONT! */
-@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap");
 
 :root {
-  --primary: #396dff;
-  --primary--dim: #6987db;
-  --darkgrey: #d4d4d4;
-  --medgrey: #e0e0e0;
-  --grey: #f7f7f7;
-  --white: #fff;
+  /* theme */
+  --bg: #f6eef3;
+  --panel: #ffffff;
+  --ink: #2b1b3a;
+  --muted: #6c5a7a;
 
+  --purple: #6b4aa5;
+  --purple2: #7e6ad6;
+
+  --shadow: 0 10px 30px rgba(30, 10, 60, 0.12);
+  --shadow2: 0 8px 18px rgba(30, 10, 60, 0.12);
+  --radius: 18px;
+
+  /* keep spacing scale */
   --xs: 4px;
   --s: 8px;
   --m: 16px;
   --l: 24px;
+
+  /* keep link variables so old code doesn't break */
+  --primary: var(--purple);
+  --primary--dim: var(--purple2);
+
+  --darkgrey: #d4d4d4;
+  --medgrey: #e0e0e0;
+  --grey: #f7f7f7;
+  --white: #fff;
 }
+
+
+html, body {
+  font-family: "Comic Neue", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+
 
 body {
   margin: 0;
   padding: 0;
   font-family: "Roboto", sans-serif;
   font-weight: 300;
+  color: var(--ink);
+
+  /* pastel background grid */
+  background:
+    linear-gradient(to right, rgba(60, 40, 90, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(60, 40, 90, 0.08) 1px, transparent 1px),
+    var(--bg);
+  background-size: 48px 48px;
 }
+
 
 form {
   flex-grow: 1;
@@ -87,4 +119,35 @@ form {
 
 .u-link:hover {
   color: var(--primary--dim);
+}
+
+/* Generic “pretty” utilities */
+.u-panel {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.u-pill {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 22px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: var(--shadow2);
+}
+
+.u-pill--easy { background: #cbb6ff; color: var(--ink); }
+.u-pill--medium { background: var(--purple2); color: white; }
+.u-pill--hard { background: #3b2a65; color: white; }
+
+.u-cta {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 26px;
+  background: #141414;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
 }

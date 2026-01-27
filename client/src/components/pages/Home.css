@@ -1,0 +1,128 @@
+/* Home.css */
+
+.home {
+  min-height: 100vh;
+}
+
+.homeTopRight {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+}
+
+.homeLink {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.homeMain {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 70px 20px 30px;
+  text-align: center;
+}
+
+.homeTitle {
+  font-size: 44px;
+  margin: 0 0 6px;
+  color: var(--purple);
+  letter-spacing: -0.5px;
+}
+
+.homeSubtitle {
+  margin: 0 0 22px;
+  color: var(--muted);
+}
+
+.homeCard {
+  width: min(520px, 92vw);
+  margin: 0 auto 20px;
+  padding: 16px 18px;
+  text-align: left;
+}
+
+.homeCard ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink);
+}
+
+.homeAuthRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.homeAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.homeUserMeta {
+  text-align: left;
+}
+
+.homeUserName {
+  font-weight: 900;
+}
+
+.homeUserEmail {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.homeLogout {
+  margin-left: 8px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  background: #e7e7e7;
+}
+
+.homeSectionTitle {
+  margin: 20px 0 12px;
+  color: var(--ink);
+}
+
+.homePills {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.homeBest {
+  margin-top: 10px;
+  color: var(--ink);
+}
+
+.homeFooter {
+  margin-top: 18px;
+}
+
+/* top-right login */
+.homeLogin {
+  position: fixed;
+  top: 18px;
+  right: 24px;
+  z-index: 10;
+}
+
+.homeLoginLoading {
+  color: var(--muted);
+}
+
+/* already mostly defined, but ensure alignment */
+.homeAuthRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

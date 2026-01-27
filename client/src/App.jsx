@@ -4,6 +4,7 @@ import { createContext, useEffect, useState } from "react";
 import Home from "./components/pages/Home";
 import Game from "./components/pages/Game";
 import RulesBook from "./components/pages/RulesBook";
+import "./utilities.css";
 
 export const UserContext = createContext(null);
 
