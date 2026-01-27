@@ -26,7 +26,9 @@ function saveJson(key, value) {
 }
 
 function makeUnknownGrid(size) {
-  return Array.from({ length: size }, () => Array.from({ length: size }, () => "unknown"));
+  return Array.from({ length: size }, () =>
+    Array.from({ length: size }, () => "unknown")
+  );
 }
 
 export default function Game() {
@@ -36,22 +38,29 @@ export default function Game() {
   const difficulty = params.get("difficulty") || "easy";
   const cfg = useMemo(() => configForDifficulty(difficulty), [difficulty]);
 
-  const rulePool = useMemo(() => rulesForDifficulty(difficulty), [difficulty]);
-  const rule = useMemo(() => rulePool[Math.floor(Math.random() * rulePool.length)], [rulePool]);
+  const rulePool = useMemo(
+    () => rulesForDifficulty(difficulty),
+    [difficulty]
+  );
+
+  const rule = useMemo(
+    () => rulePool[Math.floor(Math.random() * rulePool.length)],
+    [rulePool]
+  );
 
   useEffect(() => {
     console.log("Selected rule:", rule.id, "-", rule.name);
   }, [rule]);
 
   const [score, setScore] = useState(0);
+  const [mistakesLeft, setMistakesLeft] = useState(cfg.mistakes);
   const [tiles, setTiles] = useState(() => makeUnknownGrid(cfg.size));
-  const [clicks, setClicks] = useState(0);
 
   // Reset when difficulty changes
   useEffect(() => {
     setScore(0);
+    setMistakesLeft(cfg.mistakes);
     setTiles(makeUnknownGrid(cfg.size));
-    setClicks(0);
   }, [cfg]);
 
   const totalCorrect = useMemo(() => {
@@ -102,21 +111,20 @@ export default function Game() {
       return copy;
     });
 
-    const newClicks = clicks + 1;
-    setClicks(newClicks);
-
-    // Soft mistake logic: only subtract points if mistakes exceed allowed limit
     let newScore = score;
+
     if (isCorrect) {
       newScore += cfg.correctPoints;
     } else {
-      if (newClicks > totalCorrect + cfg.mistakes) {
-        newScore += cfg.wrongPoints; // apply penalty only after limit
+      if (mistakesLeft > 0) {
+        setMistakesLeft(prev => prev - 1); // free mistake
+      } else {
+        newScore += cfg.wrongPoints; // penalty only after buffer
       }
     }
+
     setScore(newScore);
 
-    // Unlock rule when all correct tiles are found
     const willFoundCorrect = foundCorrect + (isCorrect ? 1 : 0);
     if (willFoundCorrect >= totalCorrect) {
       unlockRule(rule.id);
@@ -126,8 +134,8 @@ export default function Game() {
 
   function reset() {
     setScore(0);
+    setMistakesLeft(cfg.mistakes);
     setTiles(makeUnknownGrid(cfg.size));
-    setClicks(0);
   }
 
   return (
@@ -141,14 +149,18 @@ export default function Game() {
               <div className="statValue">{score}</div>
             </div>
             <div className="statPill">
-              <div className="statLabel">Clicks</div>
-              <div className="statValue">{clicks}</div>
+              <div className="statLabel">Mistakes Left</div>
+              <div className="statValue">{mistakesLeft}</div>
             </div>
           </div>
 
           <div className="gameActions">
-            <button className="gameBtn" onClick={() => nav("/")}>Home</button>
-            <button className="gameBtn gameBtnPrimary" onClick={reset}>Restart</button>
+            <button className="gameBtn" onClick={() => nav("/")}>
+              Home
+            </button>
+            <button className="gameBtn gameBtnPrimary" onClick={reset}>
+              Restart
+            </button>
           </div>
         </div>
 
@@ -181,8 +193,12 @@ export default function Game() {
           </div>
 
           <div className="gameLegend">
-            <div className="gameLegendGreen">Green: +{cfg.correctPoints}</div>
-            <div className="gameLegendRed">Red: {cfg.wrongPoints}</div>
+            <div className="gameLegendGreen">
+              Green: +{cfg.correctPoints}
+            </div>
+            <div className="gameLegendRed">
+              Red: {cfg.wrongPoints}
+            </div>
           </div>
         </div>
       </main>
