@@ -5,9 +5,9 @@ import { EASY_RULES, MEDIUM_RULES, HARD_RULES } from "../modules/rules";
 import "./Game.css";
 
 function configForDifficulty(d) {
-  if (d === "hard") return { size: 7, moves: 10, correctPoints: 3, wrongPoints: -2 };
-  if (d === "medium") return { size: 6, moves: 15, correctPoints: 2, wrongPoints: -1 };
-  return { size: 5, moves: 20, correctPoints: 2, wrongPoints: -1 };
+  if (d === "hard") return { size: 7, mistakes: 2, correctPoints: 3, wrongPoints: -2 };
+  if (d === "medium") return { size: 6, mistakes: 4, correctPoints: 2, wrongPoints: -1 };
+  return { size: 5, mistakes: 6, correctPoints: 2, wrongPoints: -1 };
 }
 
 function rulesForDifficulty(difficulty) {
@@ -36,30 +36,23 @@ export default function Game() {
   const difficulty = params.get("difficulty") || "easy";
   const cfg = useMemo(() => configForDifficulty(difficulty), [difficulty]);
 
-  // pick a rule once per mount
-  const rulePool = useMemo(
-    () => rulesForDifficulty(difficulty),
-    [difficulty]);
-
-  const rule = useMemo(() => {
-    return rulePool[Math.floor(Math.random() * rulePool.length)];
-  }, [rulePool]);
+  const rulePool = useMemo(() => rulesForDifficulty(difficulty), [difficulty]);
+  const rule = useMemo(() => rulePool[Math.floor(Math.random() * rulePool.length)], [rulePool]);
 
   useEffect(() => {
-  console.log("Selected rule:", rule.id, "-", rule.name);
+    console.log("Selected rule:", rule.id, "-", rule.name);
   }, [rule]);
 
-  const [movesLeft, setMovesLeft] = useState(cfg.moves);
   const [score, setScore] = useState(0);
-  const [status, setStatus] = useState("playing"); // playing | won | lost
   const [tiles, setTiles] = useState(() => makeUnknownGrid(cfg.size));
+  const [clicks, setClicks] = useState(0);
 
+  // Reset when difficulty changes
   useEffect(() => {
-    setMovesLeft(cfg.moves);
     setScore(0);
-    setStatus("playing");
     setTiles(makeUnknownGrid(cfg.size));
-  }, [cfg.moves, cfg.size]);
+    setClicks(0);
+  }, [cfg]);
 
   const totalCorrect = useMemo(() => {
     let count = 0;
@@ -98,45 +91,43 @@ export default function Game() {
     }
   }
 
-  function endGame(nextStatus, finalScore) {
-    setStatus(nextStatus);
-    updateBestScore(finalScore);
-    if (nextStatus === "won") unlockRule(rule.id);
-  }
-
-  function reset() {
-    setMovesLeft(cfg.moves);
-    setScore(0);
-    setStatus("playing");
-    setTiles(makeUnknownGrid(cfg.size));
-  }
-
   function handleClick(r, c) {
-    if (status !== "playing") return;
-    if (movesLeft <= 0) return;
     if (tiles[r][c] !== "unknown") return;
 
     const isCorrect = !!rule.fn(r, c, cfg.size);
 
-    setTiles((prev) => {
-      const copy = prev.map((row) => row.slice());
+    setTiles(prev => {
+      const copy = prev.map(row => row.slice());
       copy[r][c] = isCorrect ? "correct" : "wrong";
       return copy;
     });
 
-    const newMoves = movesLeft - 1;
-    setMovesLeft(newMoves);
+    const newClicks = clicks + 1;
+    setClicks(newClicks);
 
-    const delta = isCorrect ? cfg.correctPoints : cfg.wrongPoints;
-    const newScore = score + delta;
+    // Soft mistake logic: only subtract points if mistakes exceed allowed limit
+    let newScore = score;
+    if (isCorrect) {
+      newScore += cfg.correctPoints;
+    } else {
+      if (newClicks > totalCorrect + cfg.mistakes) {
+        newScore += cfg.wrongPoints; // apply penalty only after limit
+      }
+    }
     setScore(newScore);
 
+    // Unlock rule when all correct tiles are found
     const willFoundCorrect = foundCorrect + (isCorrect ? 1 : 0);
     if (willFoundCorrect >= totalCorrect) {
-      endGame("won", newScore);
-      return;
+      unlockRule(rule.id);
+      updateBestScore(newScore);
     }
-    if (newMoves <= 0) endGame("lost", newScore);
+  }
+
+  function reset() {
+    setScore(0);
+    setTiles(makeUnknownGrid(cfg.size));
+    setClicks(0);
   }
 
   return (
@@ -150,18 +141,14 @@ export default function Game() {
               <div className="statValue">{score}</div>
             </div>
             <div className="statPill">
-              <div className="statLabel">Moves Left</div>
-              <div className="statValue">{movesLeft}</div>
+              <div className="statLabel">Clicks</div>
+              <div className="statValue">{clicks}</div>
             </div>
           </div>
 
           <div className="gameActions">
-            <button className="gameBtn" onClick={() => nav("/")}>
-              Home
-            </button>
-            <button className="gameBtn gameBtnPrimary" onClick={reset}>
-              Restart
-            </button>
+            <button className="gameBtn" onClick={() => nav("/")}>Home</button>
+            <button className="gameBtn gameBtnPrimary" onClick={reset}>Restart</button>
           </div>
         </div>
 
@@ -185,7 +172,7 @@ export default function Game() {
                     key={`${r}-${c}`}
                     onClick={() => handleClick(r, c)}
                     className={cls}
-                    disabled={status !== "playing" || cell !== "unknown" || movesLeft <= 0}
+                    disabled={cell !== "unknown"}
                     aria-label={`tile-${r}-${c}`}
                   />
                 );
@@ -198,34 +185,6 @@ export default function Game() {
             <div className="gameLegendRed">Red: {cfg.wrongPoints}</div>
           </div>
         </div>
-
-        {/* End-of-game */}
-        {status !== "playing" && (
-          <div className="gameEndCard">
-            {status === "won" ? (
-              <>
-                <h3 className="gameEndTitle">You won 🎉</h3>
-                <p className="gameEndText">
-                  Rule unlocked: <b>{rule.name}</b>
-                </p>
-              </>
-            ) : (
-              <>
-                <h3 className="gameEndTitle">Out of moves</h3>
-                <p className="gameEndText">Try restarting or changing difficulty.</p>
-              </>
-            )}
-
-            <div className="gameEndActions">
-              <button className="gameBtn" onClick={() => nav("/rules")}>
-                Rules Book
-              </button>
-              <button className="gameBtn gameBtnPrimary" onClick={() => nav("/")}>
-                Home
-              </button>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
