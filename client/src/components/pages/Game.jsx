@@ -1,13 +1,19 @@
 // client/src/components/pages/Game.jsx
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { RULES } from "../modules/rules";
+import { EASY_RULES, MEDIUM_RULES, HARD_RULES } from "../modules/rules";
 import "./Game.css";
 
 function configForDifficulty(d) {
   if (d === "hard") return { size: 7, moves: 10, correctPoints: 3, wrongPoints: -2 };
   if (d === "medium") return { size: 6, moves: 15, correctPoints: 2, wrongPoints: -1 };
   return { size: 5, moves: 20, correctPoints: 2, wrongPoints: -1 };
+}
+
+function rulesForDifficulty(difficulty) {
+  if (difficulty === "hard") return HARD_RULES;
+  if (difficulty === "medium") return MEDIUM_RULES;
+  return EASY_RULES;
 }
 
 function loadJson(key, fallback) {
@@ -31,7 +37,13 @@ export default function Game() {
   const cfg = useMemo(() => configForDifficulty(difficulty), [difficulty]);
 
   // pick a rule once per mount
-  const rule = useMemo(() => RULES[Math.floor(Math.random() * RULES.length)], []);
+  const rulePool = useMemo(
+    () => rulesForDifficulty(difficulty),
+    [difficulty]);
+
+  const rule = useMemo(() => {
+    return rulePool[Math.floor(Math.random() * rulePool.length)];
+  }, [rulePool]);
 
   const [movesLeft, setMovesLeft] = useState(cfg.moves);
   const [score, setScore] = useState(0);
