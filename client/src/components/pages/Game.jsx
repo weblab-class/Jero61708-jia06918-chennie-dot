@@ -45,6 +45,10 @@ export default function Game() {
     return rulePool[Math.floor(Math.random() * rulePool.length)];
   }, [rulePool]);
 
+  useEffect(() => {
+  console.log("Selected rule:", rule.id, "-", rule.name);
+  }, [rule]);
+
   const [movesLeft, setMovesLeft] = useState(cfg.moves);
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState("playing"); // playing | won | lost
