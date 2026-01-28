@@ -117,11 +117,6 @@
 }
 
 .homeAuthRow {
-.homeFooter {
-  margin-top: 25px;
-}
-
-.homeFooterRow {
   display: flex;
   align-items: center;
   gap: 10px;
