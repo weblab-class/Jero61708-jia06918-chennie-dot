@@ -113,7 +113,7 @@ export default function Home() {
         </div>
 
         <div className="homeFooter">
-          <div className="homeFooterRow">
+          <div className="homeButtons">
             <button
               className="u-cta"
               onClick={() => nav(`/game?difficulty=${difficulty}`)}

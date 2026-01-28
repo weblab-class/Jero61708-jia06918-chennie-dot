@@ -272,3 +272,31 @@
     0 10px 22px rgba(0, 0, 0, 0.3),
     0 0 18px rgba(120, 80, 255, 0.35);
 }
+
+/* Stack Start Game + Rules Book vertically and center */
+.homeButtons {
+  display: flex;
+  flex-direction: column; /* stack vertically */
+  align-items: center;    /* center horizontally */
+  gap: 16px;              /* spacing between buttons */
+  margin-top: 12px;       /* optional spacing from above */
+}
+
+/* Rules Book button styling */
+.homeRulesBtn {
+  border: none;
+  border-radius: 999px;
+  padding: 1px 32px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.homeRulesBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.25);
+}
