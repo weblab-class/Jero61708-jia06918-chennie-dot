@@ -104,10 +104,6 @@
   color: var(--ink);
 }
 
-.homeFooter {
-  margin-top: 18px;
-}
-
 /* top-right login */
 .homeLogin {
   position: fixed;
@@ -120,9 +116,29 @@
   color: var(--muted);
 }
 
-/* already mostly defined, but ensure alignment */
-.homeAuthRow {
+.homeFooter {
+  margin-top: 25px;
+}
+
+.homeFooterRow {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 25px;
+}
+
+.homeRulesBtn {
+  position: static;
+}
+
+.u-cta {
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.u-cta:hover {
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.3),
+    0 0 18px rgba(120, 80, 255, 0.35);
 }

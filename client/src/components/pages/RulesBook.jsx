@@ -43,9 +43,9 @@ export default function RulesBook() {
         </div>
       )}
 
-      <hr style={{ margin: "22px 0" }} />
+      {/* <hr style={{ margin: "22px 0" }} /> */}
 
-      <details>
+      {/* <details>
         <summary style={{ cursor: "pointer", fontWeight: 700 }}>
           (Dev) All available rules
         </summary>
@@ -57,7 +57,7 @@ export default function RulesBook() {
             </div>
           ))}
         </div>
-      </details>
+      </details> */}
     </div>
   );
 }

@@ -112,12 +112,21 @@ export default function Home() {
         </div>
 
         <div className="homeFooter">
-          <button
-            onClick={() => nav(`/game?difficulty=${difficulty}`)}
-            className="u-cta"
-          >
-            Start Game
-          </button>
+          <div className="homeFooterRow">
+            <button
+              className="u-cta"
+              onClick={() => nav(`/game?difficulty=${difficulty}`)}
+            >
+              Start Game
+            </button>
+
+            <button
+              className="gameBtn homeRulesBtn"
+              onClick={() => nav("/rules")}
+            >
+              Rules Book
+            </button>
+          </div>
         </div>
       </main>
     </div>
