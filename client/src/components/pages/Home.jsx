@@ -91,6 +91,7 @@ export default function Home() {
               onClick={() => setDifficulty(d)}
               className={[
                 "u-pill",
+                difficulty === d ? "u-pill--active" : "",
                 d === "easy"
                   ? "u-pill--easy"
                   : d === "medium"
