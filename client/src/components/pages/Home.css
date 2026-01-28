@@ -41,7 +41,7 @@
   width: min(520px, 92vw);
   margin: 0 auto 20px;
   padding: 16px 18px;
-  text-align: left;
+  text-align: center;
 }
 
 .homeCard ul {
@@ -116,15 +116,150 @@
   color: var(--muted);
 }
 
+.homeAuthRow {
 .homeFooter {
   margin-top: 25px;
 }
 
 .homeFooterRow {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 25px;
+  gap: 10px;
+}
+
+
+.homePills {
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  margin: 0.75rem 0 1rem;
+}
+
+/* Difficulty pills */
+.home .u-pill {
+  appearance: none;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  border-radius: 999px;
+
+  padding: clamp(0.8rem, 1.6vw, 1.05rem) clamp(1.7rem, 3.2vw, 2.6rem);
+  font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.10);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease, background 160ms ease;
+}
+
+.home .u-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+.home .u-pill:active {
+  transform: translateY(0px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+.home .u-pill:focus-visible {
+  outline: 3px solid rgba(123, 97, 255, 0.45);
+  outline-offset: 3px;
+}
+
+/* Selected pill */
+.home .u-pill--active {
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1px);
+}
+
+/* Variant colors */
+/* Base pill sizing (bigger + professional) */
+.u-pill {
+  min-width: 160px;
+  padding: 18px 28px;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+/* EASY — very light pastel lavender */
+.u-pill--easy {
+  background: #d9ccff;
+  color: #4a3f91;
+}
+
+/* MEDIUM — medium pastel purple */
+.u-pill--medium {
+  background: #a99be6;
+  color: #2f2a72;
+}
+
+/* HARD — deeper but still pastel purple */
+.u-pill--hard {
+  background: #5b3a8e;
+  color: #ffffff;
+}
+
+
+/* Start Game button */
+.home .u-cta {
+  border: none;
+  border-radius: 999px;
+
+  padding: clamp(0.95rem, 1.8vw, 1.2rem) clamp(2.6rem, 4vw, 3.8rem);
+  font-size: clamp(1.05rem, 1.35vw, 1.2rem);
+  font-weight: 900;
+
+  cursor: pointer;
+  background: #111;
+  color: #fff;
+
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.home .u-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.home .u-cta:active {
+  transform: translateY(0px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+.home .u-cta:focus-visible {
+  outline: 3px solid rgba(123, 97, 255, 0.45);
+  outline-offset: 4px;
+}
+
+/* Rules card text polish */
+.homeCard {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.homeCard ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.homeCard li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 500;
+
+  padding: 6px 0;
+  color: #3d2c5f;
 }
 
 .homeRulesBtn {
