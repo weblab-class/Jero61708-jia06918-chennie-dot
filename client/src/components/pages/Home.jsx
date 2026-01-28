@@ -32,7 +32,7 @@ export default function Home() {
       </div>
 
       <main className="homeMain">
-        <h1 className="homeTitle">Keyboard Warriors</h1>
+        <h1 className="homeTitle">Rules You Didn't Read</h1>
         <p className="homeSubtitle">
           Click tiles to infer the hidden rule. Green = correct, Red = incorrect.
         </p>
